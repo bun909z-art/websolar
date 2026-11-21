@@ -1,0 +1,22 @@
+{
+  "name": "hoangquan-pin-luu-tru",
+  "version": "2.0.0",
+  "description": "Ứng dụng tư vấn dung lượng Pin lưu trữ Hybrid – Hoàng Quân",
+  "type": "module",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test",
+    "extract-assets": "node scripts/extract-assets.js"
+  },
+  "dependencies": {
+    "compression": "^1.7.5",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0"
+  }
+}

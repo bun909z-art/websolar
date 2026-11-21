@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title><%= company.pageTitle %></title>
+  <meta name="theme-color" content="#F26A1B">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <img src="/images/logo.jpg" alt="<%= company.brandAlt %>">
+    </div>
+    <div class="hotline">
+      <b>Hotline tư vấn</b>
+      <% company.hotlines.forEach((h) => { %>
+        <a href="tel:<%= h.tel %>"><%= h.display %></a>
+      <% }) %>
+    </div>
+  </div>
+</header>
+
+<section class="strip">
+  <div class="wrap">
+    <h1><%= company.heading %></h1>
+    <p><%= company.subtitle %></p>
+  </div>
+</section>
+
+<main class="wrap">
+  <div class="print-only mb-12">
+    <b>PHIẾU TƯ VẤN PIN LƯU TRỮ</b> · Khách hàng: <span id="pName">—</span> · Ngày lập: <span id="pDate"></span>
+  </div>
+
+  <div class="grid">
+    <div class="col">
+
+      <section class="card">
+        <h2><span class="n">1</span>Mức tiêu thụ điện của khách</h2>
+
+        <label class="lbl" for="name">Tên khách hàng (không bắt buộc)</label>
+        <div class="field">
+          <input id="name" type="text" placeholder="VD: Anh Minh – Biên Hòa" autocomplete="off">
+        </div>
+
+        <label class="lbl mt-16">Khách cung cấp thông tin theo</label>
+        <div class="seg" role="group" aria-label="Chọn cách nhập">
+          <button type="button" id="modeBill" aria-pressed="true">Tiền hóa đơn</button>
+          <button type="button" id="modeKwh" aria-pressed="false">Số kWh</button>
+        </div>
+
+        <div id="billBox">
+          <label class="lbl" for="bill">Tổng hóa đơn điện / tháng (đã gồm VAT)</label>
+          <div class="field big">
+            <input id="bill" type="text" inputmode="numeric" autocomplete="off" placeholder="0">
+            <span class="unit">đồng</span>
+          </div>
+          <div class="chips" id="billChips"></div>
+        </div>
+
+        <div id="kwhBox" hidden>
+          <label class="lbl" for="kwh">Sản lượng điện tiêu thụ / tháng</label>
+          <div class="field big">
+            <input id="kwh" type="number" inputmode="decimal" min="0" step="1" placeholder="0">
+            <span class="unit">kWh</span>
+          </div>
+          <div class="chips" id="kwhChips"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2><span class="n">2</span>Thông số tính pin lưu trữ</h2>
+
+        <div class="slider">
+          <div class="row">
+            <span>Tỷ lệ dùng điện buổi tối (17h – 07h sáng)</span>
+            <output id="eveOut">70%</output>
+          </div>
+          <input id="eve" type="range" min="0" max="100" step="1" value="70" aria-label="Tỷ lệ dùng điện buổi tối">
+          <small>Phần điện dùng khi hết nắng – đây là phần pin phải gánh.</small>
+        </div>
+
+        <div class="slider">
+          <div class="row">
+            <span>Độ xả sâu của pin (DoD)</span>
+            <output id="dodOut">90%</output>
+          </div>
+          <input id="dod" type="range" min="50" max="100" step="1" value="90" aria-label="Độ xả sâu DoD">
+          <small>Tỷ lệ dung lượng pin được phép sử dụng.</small>
+        </div>
+
+        <div class="slider">
+          <div class="row">
+            <span>Hiệu suất xả</span>
+            <output id="effOut">95%</output>
+          </div>
+          <input id="eff" type="range" min="70" max="100" step="1" value="95" aria-label="Hiệu suất xả">
+          <small>Tổn hao khi pin xả qua inverter.</small>
+        </div>
+
+        <label class="lbl mt-20" for="mod">Dung lượng 1 module pin đang tư vấn</label>
+        <div class="field">
+          <input id="mod" type="number" inputmode="decimal" min="0.1" step="0.01" value="5.12">
+          <span class="unit">kWh / module</span>
+        </div>
+      </section>
+
+      <section class="card noprint">
+        <details class="adv">
+          <summary>Cài đặt nâng cao (VAT, số ngày, biểu giá EVN)</summary>
+          <div class="mt-14">
+            <div class="two">
+              <div>
+                <label class="lbl" for="vat">Thuế VAT</label>
+                <div class="field">
+                  <input id="vat" type="number" min="0" max="30" step="0.5" value="8">
+                  <span class="unit">%</span>
+                </div>
+              </div>
+              <div>
+                <label class="lbl" for="days">Số ngày tính / tháng</label>
+                <div class="field">
+                  <input id="days" type="number" min="1" max="31" step="1" value="30">
+                  <span class="unit">ngày</span>
+                </div>
+              </div>
+            </div>
+
+            <label class="lbl mt-16">Giá bán lẻ điện sinh hoạt (đồng/kWh, chưa VAT)</label>
+            <div class="pricegrid" id="priceGrid"></div>
+            <p class="note">
+              Biểu giá mặc định: 5 bậc, áp dụng từ 01/11/2026 (Quyết định 2892/QĐ-BCT theo báo Dân trí).
+              Khi EVN điều chỉnh giá, sửa trực tiếp tại đây – app tự ghi nhớ trên thiết bị này.
+            </p>
+            <button type="button" class="btn ghost btn-full mt-12" id="reset">
+              Khôi phục biểu giá &amp; thông số mặc định
+            </button>
+          </div>
+        </details>
+      </section>
+
+    </div>
+
+    <div class="col sticky">
+      <section class="card result" aria-live="polite">
+        <div class="hero">
+          <div class="k">Dung lượng pin cần lưu trữ</div>
+          <div class="v"><span id="rBat">—</span><small>kWh</small></div>
+          <div class="sub" id="rMods">Nhập hóa đơn hoặc số kWh để bắt đầu.</div>
+        </div>
+
+        <div class="body">
+          <div class="stats">
+            <div class="stat">
+              <div class="a">Sản lượng / tháng</div>
+              <div class="b"><span id="sKwh">—</span><small>kWh</small></div>
+              <div class="c" id="sKwhNote">&nbsp;</div>
+            </div>
+            <div class="stat">
+              <div class="a">Hóa đơn (gồm VAT)</div>
+              <div class="b"><span id="sBill">—</span><small>đ</small></div>
+              <div class="c" id="sBillNote">&nbsp;</div>
+            </div>
+          </div>
+
+          <div class="bar">
+            <div class="cap">
+              <span>Ban ngày (có nắng)</span>
+              <span>Buổi tối</span>
+            </div>
+            <div class="track">
+              <div class="day" id="barDay">30%</div>
+              <div class="eve" id="barEve">70%</div>
+            </div>
+            <div class="hint" id="barHint">&nbsp;</div>
+          </div>
+
+          <ul class="steps">
+            <li>
+              <span>Điện tiêu thụ trung bình / ngày<em id="e1">kWh tháng ÷ số ngày</em></span>
+              <span id="v1">—</span>
+            </li>
+            <li>
+              <span>Điện dùng buổi tối / ngày<em id="e2">× tỷ lệ buổi tối</em></span>
+              <span id="v2">—</span>
+            </li>
+            <li>
+              <span>Pin cần = điện tối ÷ (DoD × hiệu suất xả)<em id="e3">&nbsp;</em></span>
+              <span id="v3">—</span>
+            </li>
+          </ul>
+
+          <div class="actions noprint">
+            <button type="button" class="btn primary" id="print">In / Lưu PDF phiếu tư vấn</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="col mt-20">
+    <section class="card">
+      <h2>Chi tiết hóa đơn theo bậc thang (biểu giá 5 bậc từ 01/11/2026)</h2>
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Bậc</th>
+              <th>Khoảng (kWh)</th>
+              <th>Giá (đ/kWh)</th>
+              <th>Sản lượng (kWh)</th>
+              <th>Thành tiền (đ)</th>
+            </tr>
+          </thead>
+          <tbody id="tierBody"></tbody>
+        </table>
+      </div>
+      <p class="note" id="tierNote"></p>
+    </section>
+
+    <section class="card">
+      <h2>So sánh theo tỷ lệ dùng điện buổi tối</h2>
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Tỷ lệ buổi tối</th>
+              <th>Điện tối / ngày (kWh)</th>
+              <th>Pin cần (kWh)</th>
+              <th>Số module</th>
+            </tr>
+          </thead>
+          <tbody id="scBody"></tbody>
+        </table>
+      </div>
+      <p class="note">
+        Dùng bảng này để trao đổi với khách khi chưa biết chính xác thói quen sinh hoạt.
+        Giữ nguyên DoD, hiệu suất xả và loại module ở trên.
+      </p>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <b>Lưu ý sử dụng</b>
+  <ul>
+    <li>Áp dụng cho 01 hộ / 01 định mức điện sinh hoạt, tính đủ tháng theo biểu giá 5 bậc.</li>
+    <li>Không bao gồm các khoản điều chỉnh, truy thu, nợ kỳ trước, phí dịch vụ hoặc trường hợp nhiều định mức / hộ thuê trọ.</li>
+    <li>Kết quả quy đổi từ tiền hóa đơn là ước tính; muốn chính xác nhất hãy nhập đúng sản lượng kWh trên hóa đơn.</li>
+    <li>Dung lượng pin là kết quả tính toán sơ bộ để tư vấn; thiết kế chi tiết cần khảo sát thực tế.</li>
+  </ul>
+  <div class="co"><%= company.footerBrand %></div>
+</footer>
+
+<script type="module" src="/js/app.js"></script>
+</body>
+</html>
